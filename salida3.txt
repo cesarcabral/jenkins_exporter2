@@ -1,0 +1,1 @@
+'jobs[fullName,url,lastBuild[number],builds[number,result]]'

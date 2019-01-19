@@ -18,9 +18,8 @@ COLLECTION_TIME = Summary('jenkins_collector_collect_seconds', 'Time spent to co
 
 class JenkinsCollector(object):
     # The build statuses we want to export about.
-    statuses = ["lastBuild", "lastCompletedBuild", "lastFailedBuild",
-                "lastStableBuild", "lastSuccessfulBuild", "lastUnstableBuild",
-                "lastUnsuccessfulBuild"]
+    statuses = ["builds"]
+    #sacado de statuses: , "lastCompletedBuild", "lastFailedBuild","lastStableBuild", "lastSuccessfulBuild", "lastUnstableBuild","lastUnsuccessfulBuild"
 
     def __init__(self, target, user, password, insecure):
         self._target = target.rstrip("/")
@@ -33,10 +32,12 @@ class JenkinsCollector(object):
 
         # Request data from Jenkins
         jobs = self._request_data()
-        appendFile = open('salida.txt','a')
-        appendFile.write('\n')
-        appendFile.write(str(jobs))
-        appendFile.close()
+        salida = open('/home/cesar.cabral/jenkins-exporter/jenkins_exporter2/salida.txt','w')
+        pprint(jobs, salida)
+        #appendFile = open('salida.txt','a')
+        #appendFile.write('\n')
+        #appendFile.write(str(jobs))
+        #appendFile.close()
         self._setup_empty_prometheus_metrics()
 
         for job in jobs:
@@ -56,12 +57,17 @@ class JenkinsCollector(object):
     def _request_data(self):
         # Request exactly the information we need from Jenkins
         url = '{0}/api/json'.format(self._target)
-        jobs = "[fullName,number,timestamp,duration,actions[queuingDurationMillis,totalDurationMillis," \
-               "skipCount,failCount,totalCount,passCount]]"
-        tree = 'jobs[fullName,url,{0}]'.format(','.join([s + jobs for s in self.statuses]))
+        jobs = "[number,result]"#,actions[queuingDurationMillis,totalDurationMillis," \
+               #"skipCount,failCount,totalCount,passCount]]"
+        tree = 'jobs[fullName,url,lastBuild[number],{0}]'.format(','.join([s + jobs for s in self.statuses]))
         params = {
             'tree': tree,
         }
+        salida2 = open('/home/cesar.cabral/jenkins-exporter/jenkins_exporter2/salida2.txt','w')
+        salida3 = open('/home/cesar.cabral/jenkins-exporter/jenkins_exporter2/salida3.txt','w')
+        pprint(url, salida2)
+        pprint(tree, salida3)
+
 
         def parsejobs(myurl):
             # params = tree: jobs[name,lastBuild[number,timestamp,duration,actions[queuingDurationMillis...
