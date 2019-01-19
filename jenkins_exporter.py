@@ -1,10 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import re
 import time
 import requests
 import argparse
 from pprint import pprint
+import json
 
 import os
 from sys import exit
@@ -32,7 +33,10 @@ class JenkinsCollector(object):
 
         # Request data from Jenkins
         jobs = self._request_data()
-
+        appendFile = open('salida.txt','a')
+        appendFile.write('\n')
+        appendFile.write(str(jobs))
+        appendFile.close()
         self._setup_empty_prometheus_metrics()
 
         for job in jobs:
@@ -84,6 +88,31 @@ class JenkinsCollector(object):
             return jobs
 
         return parsejobs(url)
+
+#    def _get_folders(self):
+        # Adicion para individualizar las carpetas
+ #       url = '{0}/api/json'.format(self._target)
+        #jobs = "[fullName,number,timestamp,duration,actions[queuingDurationMillis,totalDurationMillis," \
+        #       "skipCount,failCount,totalCount,passCount]]"
+ #       tree = 'jobs[fullName,url,{0}]'.format(','.join([s + jobs for s in self.statuses]))
+ #       params = {
+ #           'tree': tree,
+#        }
+        
+#        def parsefolders(myfolders):
+            #este codigo retorna la url del folder
+#            if self._user and self._password:
+#                response = requests.get(myurl, params=params, auth=(self._user, self._password), verify=(not self._insecure))
+#            else:
+#                response = requests.get(myurl, params=params, verify=(not self._insecure))
+#            if DEBUG:
+#                pprint(response.text)
+#            if response.status_code != requests.codes.ok:
+#                raise Exception("Call to url %s failed with status: %s" % (myurl, response.status_code))
+#            result = response.json()
+#            if DEBUG:
+#                pprint(result)
+            
 
     def _setup_empty_prometheus_metrics(self):
         # The metrics we want to export.
@@ -161,7 +190,7 @@ def parse_args():
         metavar='jenkins',
         required=False,
         help='server url from the jenkins api',
-        default=os.environ.get('JENKINS_SERVER', 'http://jenkins:8080')
+        default=os.environ.get('JENKINS_SERVER', 'http://localhost:8080')
     )
     parser.add_argument(
         '--user',
